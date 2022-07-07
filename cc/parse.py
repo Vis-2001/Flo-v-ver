@@ -2,6 +2,7 @@ import ply.yacc as yacc
 from lexrorg import tokens
 
 var_table = {}
+symbol_table = {}
 
 precedence = (
      ('left', 'LOR'),
