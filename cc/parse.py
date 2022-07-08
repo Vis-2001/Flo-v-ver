@@ -1,10 +1,6 @@
 import ply.yacc as yacc
 from lexrorg import tokens
 
-var_table = {} # value, type, datatype, lineno, scope
-symbol_table = {}
-pdtype = ''
-
 start = 'translation_unit'
 def p_primexpr(p):
     '''primary_expression : ID

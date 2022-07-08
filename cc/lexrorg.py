@@ -28,7 +28,7 @@ tokens = [ 'ID' , 'CONSTANT',
  # Ellipsis (...)
 'ELLIPSIS',
 #others
-'STRING','PREPROCESSOR_TOKEN', 'DHASH',
+'STRING','PREPROCESSOR_TOKEN',
 
 
 ]
@@ -119,7 +119,6 @@ t_PERIOD            = r'\.'
 t_SEMI              = r';'
 t_COLON             = r':'
 t_ELLIPSIS          = r'\.\.\.'
-t_DHASH             = r'\#\#|%:%:'
 t_LBRACE            = r'\{|<%'
 t_RBRACE            = r'\}|%>'
 
