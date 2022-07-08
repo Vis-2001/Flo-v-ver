@@ -28,7 +28,7 @@ tokens = [ 'ID' , 'CONSTANT',
  # Ellipsis (...)
 'ELLIPSIS',
 #others
-'UNARY','STRING','PREPROCESSOR_TOKEN', 'DHASH',
+'STRING','PREPROCESSOR_TOKEN', 'DHASH',
 
 
 ]
