@@ -1,5 +1,6 @@
 import ply.yacc as yacc
 from lexrorg import tokens
+import sys
 
 start = 'translation_unit'
 def p_primexpr(p):
@@ -384,18 +385,18 @@ def p_funcdef(p):
 
 
 def p_error(p):
-    print("Syntax error in input!")
+    if p:
+        print("Syntax error in input at line number", p.lineno)
 
 
  # Build the parser
 parser = yacc.yacc()
 
-while True:
-    try:
-        s = input('calc > ')
-    except EOFError:
-        break
-    if not s: continue
-    result = parser.parse(s)
+s = ''
+
+with open(sys.argv[1], 'r') as file:
+    s = file.read()
+
+result = parser.parse(s)
+if result:
     print(result)
-    print(var_table)

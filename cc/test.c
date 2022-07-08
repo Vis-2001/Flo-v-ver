@@ -1,19 +1,19 @@
-/*
-test C prog
-*/
-#include<stdio.h>
+
 int gcd(int u, int v)
 {
     if(v==2)
-        return u; //this is a comment
+    {
+        return u;
+    }
     else
+    {
         return gcd(v,u-u/v*v);
+    }
 }
 
 int main()
 {
     int k = 5+20/4;
-    typedef a;
     int a, b;
     printf("Enter first number: ");
     scanf("%d", &a);

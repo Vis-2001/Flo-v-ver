@@ -129,6 +129,10 @@ def t_ID(t):
         t.type = reserved[ t.value ]
     return t
 
+def t_PREPROCESSOR_TOKEN(t):
+    r'\#.*\n'
+    pass
+
 def t_CONSTANT(t):
     r'[0-9]*\.[0-9]*|\d*\d|\'.\''
     if t.value[0] == '\'':
@@ -145,11 +149,6 @@ def t_STRING(t):
     r'".*"'
     return t
 
-def t_PREPROCESSOR_TOKEN(t):
-    r'\#.*\n'
-    t.value=t.value.strip()
-    return t
-
 t_ignore  = ' \t'
 
 def t_error(t):
@@ -159,3 +158,5 @@ def t_error(t):
 def t_COMMENT(t):
     r'//.*(\n|\*/)|/\*(.|\n)*\*/'
     pass
+
+lexer=lex.lex()
