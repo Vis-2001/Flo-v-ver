@@ -13,7 +13,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename  = sys.argv[1]
     else:
-        filename = 'examples/c_files/memmgr.c'
+        filename = 'test.c'
 
     v = Verify(filename)
     v.analyze_fn('main')

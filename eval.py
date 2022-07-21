@@ -58,7 +58,11 @@ class Table():   #[name, V, variable type, variable value, node info] OR [name, 
             return None
         return self.__upperscope.get_func(node)
 
+
+
 global_table = Table()
+
+
 
 
 def eval_expr(node, symb_table):
@@ -153,7 +157,7 @@ def eval_expr(node, symb_table):
     if isinstance(node, c_ast.ID):
         return symb_table.get_value(node)
     if isinstance(node, c_ast.FuncCall):
-        return eval_fncall(node)
+        return eval_fncall(node, symb_table)
 
 def eval_fncall(node, symb_table):
     symb_table = Table(symb_table)
@@ -165,7 +169,7 @@ def eval_fncall(node, symb_table):
         for arg in zip(func_det[3], node.args):
             arg[0].init = arg[1]
             symb_table.add_entry(arg[0])
-    eval_stat(func_det[4], symb_table)
+    return eval_stat(func_det[4], symb_table)
 
 def eval_stat(node, symb_table):
     if not isinstance(node, c_ast.Compound):
@@ -177,9 +181,30 @@ def eval_stat(node, symb_table):
             eval_fncall(statement, symb_table)
         if isinstance(statement, c_ast.Decl):
             symb_table.add_entry(statement)
+        if isinstance(statement, c_ast.Return):
+            return eval_expr(statement.expr, symb_table)
         if isinstance(statement, c_ast.Assignment):
             rval = eval_expr(statement.rvalue,symb_table)
             if statement.op == '=':
                 symb_table.update_entry(statement.lvalue, rval)
             elif statement.op =='*=':
-                pass
+                symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)*rval)
+            elif statement.op =='/=':
+                symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)/rval)
+            elif statement.op =='+=':
+                symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)+rval)
+            elif statement.op =='-=':
+                symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)-rval)
+            elif isinstance(rval, int):
+                if statement.op =='%=':
+                    symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)%rval)
+                elif statement.op =='<<=':
+                    symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)<<rval)
+                elif statement.op =='>>=':
+                    symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)>>rval)
+                elif statement.op =='&=':
+                    symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)&rval)
+                elif statement.op =='|=':
+                    symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)|rval)
+                elif statement.op =='^=':
+                    symb_table.update_entry(statement.lvalue, symb_table.get_value(statement.lvalue)^rval)

@@ -1,0 +1,128 @@
+FileAST: 
+  Decl <ext[0]>: testfn, [], [], [], []
+    FuncDecl <type>: 
+      ParamList <args>: 
+        Typename <params[0]>: None, [], None
+          TypeDecl <type>: None, [], None
+            IdentifierType <type>: ['int']
+        Typename <params[1]>: None, [], None
+          TypeDecl <type>: None, [], None
+            IdentifierType <type>: ['int']
+      TypeDecl <type>: testfn, [], None
+        IdentifierType <type>: ['void']
+  Decl <ext[1]>: inint, [], [], [], []
+    TypeDecl <type>: inint, [], None
+      IdentifierType <type>: ['int']
+    Constant <init>: int, 2
+  Decl <ext[2]>: gint, [], [], [], []
+    TypeDecl <type>: gint, [], None
+      IdentifierType <type>: ['int']
+    BinaryOp <init>: *
+      Constant <left>: int, 4
+      ID <right>: inint
+  FuncDef <ext[3]>: 
+    Decl <decl>: test, [], [], [], ['inline']
+      FuncDecl <type>: 
+        ParamList <args>: 
+          Decl <params[0]>: arg, [], [], ['static'], []
+            TypeDecl <type>: arg, [], None
+              IdentifierType <type>: ['unsigned', 'int']
+          Decl <params[1]>: test, [], [], ['register'], []
+            TypeDecl <type>: test, [], None
+              IdentifierType <type>: ['float']
+        TypeDecl <type>: test, [], None
+          IdentifierType <type>: ['int']
+    Compound <body>: 
+      FuncCall <block_items[0]>: 
+        ID <name>: printf
+        ExprList <args>: 
+          Constant <exprs[0]>: string, "h"
+      Compound <block_items[1]>: 
+        Decl <block_items[0]>: d, [], [], [], []
+          TypeDecl <type>: d, [], None
+            IdentifierType <type>: ['int']
+          Constant <init>: int, 2
+        Assignment <block_items[1]>: =
+          ID <lvalue>: d
+          Constant <rvalue>: int, 2
+        UnaryOp <block_items[2]>: p++
+          ID <expr>: d
+      Decl <block_items[2]>: c, [], [], [], []
+        TypeDecl <type>: c, [], None
+          IdentifierType <type>: ['int']
+        BinaryOp <init>: *
+          Constant <left>: int, 2
+          UnaryOp <right>: p++
+            ID <expr>: arg
+      UnaryOp <block_items[3]>: p++
+        ID <expr>: d
+  FuncDef <ext[4]>: 
+    Decl <decl>: print, [], [], [], []
+      FuncDecl <type>: 
+        TypeDecl <type>: print, [], None
+          IdentifierType <type>: ['void']
+    Compound <body>: 
+      FuncCall <block_items[0]>: 
+        ID <name>: printf
+        ExprList <args>: 
+          Constant <exprs[0]>: string, "Test %d %d"
+          Constant <exprs[1]>: int, 5
+          BinaryOp <exprs[2]>: *
+            Constant <left>: int, 7
+            Constant <right>: int, 76
+  FuncDef <ext[5]>: 
+    Decl <decl>: main, [], [], [], []
+      FuncDecl <type>: 
+        TypeDecl <type>: main, [], None
+          IdentifierType <type>: ['int']
+    Compound <body>: 
+      Decl <block_items[0]>: var, [], [], [], []
+        TypeDecl <type>: var, [], None
+          IdentifierType <type>: ['int']
+        Constant <init>: int, 3
+      FuncCall <block_items[1]>: 
+        ID <name>: printf
+        ExprList <args>: 
+          Constant <exprs[0]>: string, "Hello World"
+      FuncCall <block_items[2]>: 
+        ID <name>: test
+        ExprList <args>: 
+          Constant <exprs[0]>: int, 3
+          Constant <exprs[1]>: double, 5.68
+      FuncCall <block_items[3]>: 
+        ID <name>: print
+Function testfn with return type ['void'] declared at at test.c:2:6
+
+Global variable inint with value 2 declared at at test.c:4:5
+
+Global variable gint with value 8 declared at at test.c:5:5
+
+Function test with return type ['int'] defined at test.c:7:12
+
+Function test calls printf with argument(s):
+    constant of type str with value "h"
+
+
+Function print with return type ['void'] defined at test.c:19:6
+
+Function print calls printf with argument(s):
+    constant of type str with value "Test %d %d"
+    constant of type int with value 5
+    constant of type int with value 532
+
+
+Function main with return type ['int'] defined at test.c:24:5
+
+Function main calls printf with argument(s):
+    constant of type str with value "Hello World"
+
+Function main calls test with argument(s):
+    constant of type int with value 3
+    constant of type BoundedFloat with value 5.68 [5.58, 5.779999999999999]
+
+Function main calls print with no arguments
+
+
+printf not defined
+printf not defined
+printf not defined

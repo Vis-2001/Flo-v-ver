@@ -12,8 +12,9 @@ inline int test(unsigned static int arg, register float test)
     d = 2;
     d++;
   }
-  int c = 2*arg++;
+  int c = arg+++10;
   d++;
+  return c;
 }
 
 void print()
@@ -21,10 +22,11 @@ void print()
   printf("Test %d %d", 5, 7*76);
 }
 
-int main()
+float main()
 {
   int var = 3;
   printf("Hello World");
-  test(3,5.68);
+  int a = test(3.5,5.68);
   print();
+  return a+7;
 }

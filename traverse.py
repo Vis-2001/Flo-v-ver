@@ -65,4 +65,4 @@ class Verify():
         self.ast.show(nodenames =  True)
         v.visit(self.ast)
         fcnode = c_ast.FuncCall(c_ast.ID(fname),None)
-        eval_fncall(fcnode, global_table)
+        print('Return value of function = ', eval_fncall(fcnode, global_table))
