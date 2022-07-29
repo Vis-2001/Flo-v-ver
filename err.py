@@ -38,6 +38,9 @@ class BoundedFloat():
         nl = self.val_l + other.val_l
         return BoundedFloat(nval, nu, nl)
 
+    def __radd__(self, other):
+        return self.__add__(other)
+
     def __sub__(self, other):
         if not isinstance(other, BoundedFloat):
             other = BoundedFloat(other)
@@ -46,6 +49,9 @@ class BoundedFloat():
         nl = self.val_u - other.val_l
         return BoundedFloat(nval, nu, nl)
 
+    def __rsub__(self, other):
+        return self.__sub__(other)
+
     def __mul__(self, other):
         if not isinstance(other, BoundedFloat):
             other = BoundedFloat(other)
@@ -53,6 +59,38 @@ class BoundedFloat():
         nu = max(self.val_l*other.val_l,self.val_u*other.val_l,self.val_l*other.val_u,self.val_u*other.val_u)
         nl = min(self.val_l*other.val_l,self.val_u*other.val_l,self.val_l*other.val_u,self.val_u*other.val_u)
         return BoundedFloat(nval, nu, nl)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __eq__(self, other):                                  #complete (raise issue)
+        if not isinstance(other, BoundedFloat):
+            other = BoundedFloat(other)
+
+    def __ne__(self, other):
+        pass
+
+    def __lt__(self, other):
+        pass
+
+    def __le__(self, other):
+        pass
+
+    def __ge__(self, other):
+        pass
+
+    def __gt__(self, other):
+        pass
+
+    def __int__(self):
+        nval = int(self.val)
+        nu = int(self.val_u)
+        nl = int(self.val_l)
+        return nval  #fix
+
+    def __float__(self):
+        return self
+
 
 
 if __name__ == "__main__":

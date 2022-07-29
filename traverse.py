@@ -23,7 +23,6 @@ class NodeVisitor(object):
 
 class NodeCollector(NodeVisitor):
     def visit_Decl(self, node):
-        #if node.name not in table.keys():
         if type(node.type) == c_ast.FuncDecl:
             print('Function %s with return type %s declared at at %s' % (node.name, node.type.type.type.names, node.coord))
             global_table.add_entry(node)
@@ -60,9 +59,14 @@ class Verify():
         self.ast = parse_file(filename, use_cpp=True,
                          cpp_args=r'-Iutils/fake_libc_include')
 
-    def analyze_fn(self, fname, args = None):
+    def analyze_fn(self, fname = 'main', args = None):
         v = NodeCollector()
         self.ast.show(nodenames =  True)
         v.visit(self.ast)
-        fcnode = c_ast.FuncCall(c_ast.ID(fname),None)
-        print('Return value of function = ', eval_fncall(fcnode, global_table))
+        arglst = None
+        if args is not None:
+            arglst = []
+            for arg in args:
+                arglst.append(c_ast.Constant(type(arg), arg))
+        fcnode = c_ast.FuncCall(c_ast.ID(fname),arglst)
+        print('Return value of function',fname,'=', eval_fncall(fcnode, global_table))

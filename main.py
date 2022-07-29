@@ -16,4 +16,4 @@ if __name__ == "__main__":
         filename = 'test.c'
 
     v = Verify(filename)
-    v.analyze_fn('main')
+    v.analyze_fn()
