@@ -59,9 +59,12 @@ class Verify():
         self.ast = parse_file(filename, use_cpp=True,
                          cpp_args=r'-Iutils/fake_libc_include')
 
-    def analyze_fn(self, fname = 'main', args = None):
+    def analyze_fn(self, fname = 'main', args = None, showtree = None):
         v = NodeCollector()
-        self.ast.show(nodenames =  True)
+        if showtree is None:
+            self.ast.show()
+        else:
+            self.ast.show(nodenames = True)
         v.visit(self.ast)
         arglst = None
         if args is not None:

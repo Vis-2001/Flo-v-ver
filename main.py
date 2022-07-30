@@ -16,4 +16,5 @@ if __name__ == "__main__":
         filename = 'test.c'
 
     v = Verify(filename)
-    v.analyze_fn()
+    name = input('Enter function name: ')
+    v.analyze_fn(name,showtree = False)

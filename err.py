@@ -1,12 +1,23 @@
 import sys
 from z3 import *
+from decimal import Decimal
 
+
+runningloop = []
+
+presc = 200
 epsilon = RealVal(sys.float_info.epsilon)
 dela = RealVal(simplify(epsilon/2))
 delr = RealVal(0)
 #delr=RealVal(0.000049948692321777343750000000)
 #dela=RealVal(0.000000119209289550781250000000)
-set_option(precision=150,rational_to_decimal=True)
+set_option(precision=presc,rational_to_decimal=True)
+
+def z3zero(v1,v2):
+    if (str(simplify(v1-v2))=='0'):
+        return True
+    else:
+        return False
 
 def z3max(v1,v2):
     if(str(simplify(v1-v2))[0]=='-'):
@@ -56,6 +67,7 @@ class BoundedFloat():
                 self.bounds[0] = simplify(self.real-self.err)
             elif isinstance(val, int):
                 self.bounds[0] = RealVal(val)
+                self.err = 0
         else:
             if isinstance(llmt, RealVal):
                 self.bounds[0] = llmt
@@ -66,6 +78,7 @@ class BoundedFloat():
                 self.bounds[1] = simplify(self.real+self.err)
             elif isinstance(val, int):
                 self.bounds[1] = RealVal(val)
+                self.err = 0
         else:
             if isinstance(ulmt, RealVal):
                 self.bounds[1] = ulmt
@@ -74,7 +87,7 @@ class BoundedFloat():
 
 
     def __str__(self):
-        return "{0}, {1} {2} {3}".format(self.flt, self.real, self.bounds,self.err)
+        return "{0}, {1} {2} {3}".format(Decimal(self.flt), self.real, self.bounds,self.err)
 
     def __add__(self, other):
         if not isinstance(other, BoundedFloat):
@@ -130,24 +143,88 @@ class BoundedFloat():
     def __rtruediv__(self, other):
         return self.__truediv__(other)
 
-    def __eq__(self, other):                                  #complete (raise issue)
+    def __eq__(self, other):
         if not isinstance(other, BoundedFloat):
             other = BoundedFloat(other)
+        if self.flt == other.flt:
+            if not z3zero(self.real, other.real):
+                print()
+                print('LHS: ', self)
+                print('RHS: ', other)
+                print('Operator: ==')
+                print(runningloop)
+                if len(runningloop) != 0:
+                    print('Location: ', runningloop[0])
+                print('WARNING: Float equal, Real unequal, branch taken, possible issue')
+            return True
+        else:
+            if z3zero(self.real, other.real):
+                issuelist = [self, other]
+                print()
+                print('LHS: ', self)
+                print('RHS: ', other)
+                print('Operator: ==')
+                if len(runningloop) != 0:
+                    print('Location: ', runningloop[0])
+                print('WARNING: Float unequal, Real equal, branch not taken, possible issue')
+            return False
 
     def __ne__(self, other):
-        pass
+        if not isinstance(other, BoundedFloat):
+            other = BoundedFloat(other)
+        if self.flt != other.flt:
+            if z3zero(self.real, other.real):
+                print()
+                print('LHS: ', self)
+                print('RHS: ', other)
+                print('Operator: !=')
+                if len(runningloop) != 0:
+                    print('Location: ', runningloop[0])
+                print('WARNING: Float unequal, Real equal, branch taken, possible issue')
+            return True
+        else:
+            if not z3zero(self.real, other.real):
+                print()
+                print('LHS: ', self)
+                print('RHS: ', other)
+                print('Operator: !=')
+                if len(runningloop) != 0:
+                    print('Location: ', runningloop[0])
+                print('WARNING: Float equal, Real unequal, branch not taken, possible issue')
+            return False
+
 
     def __lt__(self, other):
-        pass
+        if not isinstance(other, BoundedFloat):
+            other = BoundedFloat(other)
+        if self.flt > other.flt:
+            return True
+        else:
+            return False
 
     def __le__(self, other):
-        pass
+        if not isinstance(other, BoundedFloat):
+            other = BoundedFloat(other)
+        if self.flt >= other.flt:
+            return True
+        else:
+            return False
 
     def __ge__(self, other):
-        pass
+        if not isinstance(other, BoundedFloat):
+            other = BoundedFloat(other)
+        if self.flt <= other.flt:
+            return True
+        else:
+            return False
 
     def __gt__(self, other):
-        pass
+        if not isinstance(other, BoundedFloat):
+            other = BoundedFloat(other)
+        if self.flt < other.flt:
+            return True
+        else:
+            return False
 
     def __int__(self):
         nval = int(self.flt)

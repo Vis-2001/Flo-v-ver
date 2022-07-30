@@ -1,10 +1,11 @@
+#include<stdio.h>
 #define MAX_VAL 10
 void testfn(int, int);
 
-float inint = 2.6;
-float gint = 2.65;
+float intint = 2.6;
+float global_int = 2.65;
 
-int garr[] = {1,2,3,4,5,6};
+int global_arr[] = {1,2,3,4,5,6};
 
 float test(float arg, float test)
 {
@@ -29,23 +30,11 @@ float main()
     arr[j]=j;
   int var = 3.6;
   printf("Hello World");
-  float a = test(var,8.68);
+  float a = test(var,8.687);
   int i = 9-arr[7];
-  switch(i)
-  {
-    case 0:
-          break;
-    case 1:
-          a++;
-          break;
-    case 2:
-          a+=2;
-    case 3:
-          a+=3;
-          break;
-    default:
-          a+=4;
-  }
+  for(int j = 0; j<i; j++)
+    a+=0.1;
   print();
+  printf("%f\n", a);
   return a;
 }

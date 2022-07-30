@@ -15,6 +15,11 @@ def cast(typ, val):
     return val
 
 
+def loopterminate(table, node, iterval):
+    pass
+
+
+
 #[name, V, variable type, variable value, node info] OR [name, F, return type, argument list, body] OR [name, AR, type, [list], dimension]
 class Table():
     def __init__(self, uscope = None):
@@ -203,7 +208,7 @@ def eval_expr(node, symb_table):
         if node.type == 'int':
             return int(node.value)
         elif node.type == 'float' or node.type == 'double':
-            return BoundedFloat(node.value)                   
+            return BoundedFloat(node.value)
         elif node.type == 'string':
             return node.value
         elif node.type =='char':
@@ -223,7 +228,7 @@ def eval_fncall(node, symb_table_og):
     symb_table = Table(symb_table_og)
     func_det = symb_table.get_func(node.name)
     if func_det is None:
-        print(node.name.name, 'not defined')
+        #print(node.name.name, 'not defined')
         return
     print('Function', node.name.name, end = '')
     if node.args is not None:
@@ -238,6 +243,7 @@ def eval_fncall(node, symb_table_og):
                 print(f"    constant of type {type(val).__name__} with value {val}")
     else:
         print(' with no args called')
+    print()
 
     ret = eval_stat(func_det[4], symb_table)
     if isinstance(ret, tuple):
@@ -280,17 +286,40 @@ def eval_stat(node, symb_table, loop = None):
 
 
         if isinstance(statement, c_ast.While):
+            runningloop = [statement.coord]
             looptbl = Table(symb_table)
+            loopcount = 0
+            loopval = None
             while eval_expr(statement.cond, looptbl):
                 loopval = eval_stat(statement.stmt, looptbl)
-                if loopval == 'break':
+                loopcount += 1
+                if loopval == 'break' or  isinstance(loopval, tuple):
                     break
                 if loopval == 'continue':
                     continue
-                if isinstance(loopval, tuple):
-                    return loopval
+                if (loopcount % 2000) == 0:       #rework
+                    print('\nWARNING: Loop',statement.coord,'has run', loopcount, 'times.')
+                    conf = input('Do you want to exit(y to exit)')
+                    if conf == 'y':
+                        break
+
+
+            print("'While' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
+            if (loopcount%2000)!=0:
+                print(' normally')
+            else:
+                print(', condition doesnt seem to hold')
+
+            print()
+
+            runningloop = []
+            if isinstance(loopval, tuple):
+                return loopval
+
         if isinstance(statement, c_ast.For):
+            runningloop = [statement.coord]
             looptbl = Table(symb_table)
+            loopcount = 0
             for decl in statement.init:
                 looptbl.add_entry(decl)
             if isinstance(statement.next, list):
@@ -298,27 +327,62 @@ def eval_stat(node, symb_table, loop = None):
             else:
                 next = [statement.next]
             next = c_ast.Compound(next)
+            loopval = None
             while eval_expr(statement.cond, looptbl):
                 loopval = eval_stat(statement.stmt, looptbl)
-                if loopval == 'break':
+                loopcount += 1
+                if loopval == 'break' or  isinstance(loopval, tuple):
                     break
                 if loopval == 'continue':
                     continue
-                if isinstance(loopval, tuple):
-                    return loopval
+                if (loopcount % 2000) == 0:       #rework
+                    print('\nWARNING: Loop',statement.coord,'has run', loopcount, 'times.')
+                    conf = input('Do you want to exit(y to exit)')
+                    if conf == 'y':
+                        break
                 eval_stat(next, looptbl)
+
+            print("'For' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
+            if (loopcount%2000)!=0:
+                print(' normally')
+            else:
+                print(', condition doesnt seem to hold')
+
+            print()
+            runningloop = []
+            if isinstance(loopval, tuple):
+                return loopval
+
+
         if isinstance(statement, c_ast.DoWhile):
+            runningloop = [statement.coord]
             looptbl = Table(symb_table)
+            loopcount = 1
             loopval = eval_stat(statement.stmt, looptbl)
             if loopval != 'break':
                 while eval_expr(statement.cond, looptbl):
                     loopval = eval_stat(statement.stmt, looptbl)
-                    if loopval == 'break':
+                    loopcount += 1
+                    if loopval == 'break' or  isinstance(loopval, tuple):
                         break
                     if loopval == 'continue':
                         continue
-                    if isinstance(loopval, tuple):
-                        return loopval
+                    if (loopcount % 2000) == 0:       #rework
+                        print('\nWARNING: Loop',statement.coord,'has run', loopcount, 'times.')
+                        conf = input('Do you want to exit(y to exit)')
+                        if conf == 'y':
+                            break
+
+            print("'Do-While' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
+            if loopcount%2000!=0:
+                print(' normally')
+            else:
+                print(', condition doesnt seem to hold')
+
+            print()
+            runningloop = []
+            if isinstance(loopval, tuple):
+                return loopval
 
 
         if isinstance(statement, c_ast.Switch):
