@@ -67,7 +67,7 @@ class BoundedFloat():
                 self.bounds[0] = simplify(self.real-self.err)
             elif isinstance(val, int):
                 self.bounds[0] = RealVal(val)
-                self.err = 0
+                self.err = RealVal(0)
         else:
             if isinstance(llmt, RealVal):
                 self.bounds[0] = llmt
@@ -78,7 +78,7 @@ class BoundedFloat():
                 self.bounds[1] = simplify(self.real+self.err)
             elif isinstance(val, int):
                 self.bounds[1] = RealVal(val)
-                self.err = 0
+                self.err = RealVal(0)
         else:
             if isinstance(ulmt, RealVal):
                 self.bounds[1] = ulmt

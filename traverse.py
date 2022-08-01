@@ -60,6 +60,8 @@ class Verify():
                          cpp_args=r'-Iutils/fake_libc_include')
 
     def analyze_fn(self, fname = 'main', args = None, showtree = None):
+        if fname is None or fname == '':
+            fname = 'main'
         v = NodeCollector()
         if showtree is None:
             self.ast.show()

@@ -18,8 +18,6 @@ def cast(typ, val):
 def loopterminate(table, node, iterval):
     pass
 
-
-
 #[name, V, variable type, variable value, node info] OR [name, F, return type, argument list, body] OR [name, AR, type, [list], dimension]
 class Table():
     def __init__(self, uscope = None):
@@ -29,27 +27,43 @@ class Table():
             self.__upperscope = None
         self.__table = []
 
-    def add_entry(self, node):
+    def add_entry(self, node, arrindex = None):
         if isinstance(node, c_ast.Decl):
             if isinstance(node.type, c_ast.FuncDecl):
                 pass
             elif isinstance(node.type, c_ast.TypeDecl):
                 val = cast(node.type.type.names, eval_expr(node.init, self))
                 self.__table.append([node.name,'V',node.type.type.names[0],val,node])
+
             elif isinstance(node.type, c_ast.ArrayDecl):
                 array = []
-                if node.init is not None:
-                    for item in node.init:
-                        array.append(cast(node.type.type.type.names, eval_expr(item, self)))
-                if node.type.dim is not None:
-                    size = eval_expr(node.type.dim, self)
+                dimarr = []
+                initref = node.init
+                node = node.type
+                while isinstance(node, c_ast.ArrayDecl):
+                    val = eval_expr(node.dim, self)
+                    if val is not None:
+                        dimarr.append(val)
+                    node = node.type
+                if len(dimarr) != 0:
+                    ldarr = [0 for x in range(dimarr[-1:][0])]
+                    for dimension in dimarr[-2::-1]:
+                        array = [ldarr.copy() for x in range(dimension)]
+                        ldarr = array
+
+                if initref is not None:      #add multidim init support
+                    for item in initref:
+                        array.append(cast(node.type.names, eval_expr(item, self)))
+                if len(dimarr) != 0:
+                    size = dimarr[0]
                     if len(array)>size:
                         array = array[:size]
                 else:
                     size = len(array)
                 while len(array)<size:
                     array.append(0)
-                self.__table.append([node.name, 'AR',node.type.type.type.names,array,size])
+                self.__table.append([node.declname, 'AR',node.type.names,array,dimarr])
+
             elif isinstance(node.type, c_ast.PtrDecl):
                 pass
 
@@ -58,30 +72,50 @@ class Table():
 
     def update_entry(self, node, new_val, index = None):   #takes ID/ArrayRef node as input
         if isinstance(node, c_ast.ArrayRef):
-            index = eval_expr(node.subscript, self)
+            index = [eval_expr(node.subscript, self)]
             node = node.name
+            while isinstance(node, c_ast.ArrayRef):
+                index.append(eval_expr(node.subscript, self))
+                node = node.name
         for item in self.__table:
             if node.name == item[0]:
                 if item[1] == 'V':
                     item[3] = cast(item[2],new_val)
                     return True
-                if item[1] == 'AR':
-                    item[3][index] = cast(item[2], new_val)
-                    return True
+                elif item[1] == 'AR':
+                    if index is not None:
+                        if(len(index)>1):
+                            elemref = item[3][index[0]]
+                        else:
+                            elemref = item[3]
+                        for subscript in range(1, len(index)-1):
+                            elemref = elemref[subscript]
+                        elemref[index[-1]] = cast(item[2], new_val)
+                        return True
         if self.__upperscope is None:
             return False
         return self.__upperscope.update_entry(node,new_val, index)
 
     def get_value(self, node, index = None):
         if isinstance(node, c_ast.ArrayRef):
-            index = eval_expr(node.subscript, self)
+            index = [eval_expr(node.subscript, self)]
             node = node.name
+            while isinstance(node, c_ast.ArrayRef):
+                index.append(eval_expr(node.subscript, self))
+                node = node.name
         for item in self.__table:
             if node.name == item[0]:
                 if item[1] == 'V':
                     return item[3]
                 elif item[1] == 'AR':
-                    return item[3][index]
+                    if index is not None:
+                        if(len(index)>1):
+                            elemref = item[3][index[0]]
+                        else:
+                            elemref = item[3]
+                        for subscript in range(1, len(index)-1):
+                            elemref = elemref[subscript]
+                        return elemref[index[-1]]
                 else:
                     return 'Function'
         if self.__upperscope is None:
