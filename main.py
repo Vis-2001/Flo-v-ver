@@ -50,6 +50,6 @@ if __name__ == "__main__":
 
         if args.cmd == 'run':
             start = time.time()
-            v.analyze_fn(args.fname, args = args.args, showtree = args.showtree)
+            v.analyze_fn(args.fname, showtree = args.showtree)
             print()
             print("Time elapsed: ", (time.time()-start)*1000,"ms")
