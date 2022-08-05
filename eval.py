@@ -1,5 +1,6 @@
 from pycparser import c_ast
 from err import *
+import log
 
 def cast(typ, val):
     if not isinstance(typ, str):
@@ -139,7 +140,7 @@ class Table():
             return None
         return self.__upperscope.get_func(node)
 
-    def show(self):
+    def show(self): #debug
         space = ''
         if self.__upperscope is not None:
             space = self.__upperscope.show()
@@ -150,10 +151,10 @@ class Table():
                 print(space, elem[0], elem[2], elem[3], elem[4])
         return space + '--'
 
-
-
-
-global_table = Table()
+    def isempty(self):
+        if len(self.__table) == 0 and self.__upperscope == None:
+            return True
+        return False
 
 def eval_expr(node, symb_table):
     if node is None:
@@ -227,6 +228,8 @@ def eval_expr(node, symb_table):
             return val-1
         elif node.op == '~':
             return ~val
+        elif node.op == '-':
+            return -val
         elif node.op == '!':
             return not val
 
@@ -264,26 +267,26 @@ def eval_fncall(node, symb_table_og):
     if func_det is None:
         #print(node.name.name, 'not defined')
         return
-    print('Function', node.name.name, end = '')
+    log.verbose_print('Function', node.name.name, end = '')
     if node.args is not None:
-        print(' with args:')
+        log.verbose_print(' with args:')
         for arg in zip(func_det[3], node.args):
             arg[0].init = arg[1]
             symb_table.add_entry(arg[0])
             if isinstance(arg[1],c_ast.ID):
-                print(f"    variable {arg[1].name} with value {symb_table.get_value(arg[1])}")
+                log.verbose_print(f"    variable {arg[1].name} with value {symb_table.get_value(arg[1])}")
             else:
-                val = eval_expr(arg[1], global_table)
-                print(f"    constant of type {type(val).__name__} with value {val}")
+                val = eval_expr(arg[1], symb_table)
+                log.verbose_print(f"    constant of type {type(val).__name__} with value {val}")
     else:
-        print(' with no args called')
-    print()
+        log.verbose_print(' with no args called')
+    log.verbose_print()
 
     ret = eval_stat(func_det[4], symb_table)
     if isinstance(ret, tuple):
         ret = ret[1]
     ret = cast(func_det[2], ret)
-#    print('Function', node.name.name, 'returns', ret)
+    #log.verbose_print('Function', node.name.name, 'returns', ret)
     return ret
 
 
@@ -320,7 +323,6 @@ def eval_stat(node, symb_table, loop = None):
 
 
         if isinstance(statement, c_ast.While):
-            runningloop = [statement.coord]
             looptbl = Table(symb_table)
             loopcount = 0
             loopval = None
@@ -331,27 +333,23 @@ def eval_stat(node, symb_table, loop = None):
                     break
                 if loopval == 'continue':
                     continue
-                if (loopcount % 2000) == 0:       #rework
-                    print('\nWARNING: Loop',statement.coord,'has run', loopcount, 'times.')
-                    conf = input('Do you want to exit(y to exit)')
-                    if conf == 'y':
-                        break
+                if (loopcount % log.loop_break) == 0:       #rework
+                    log.loop_print('WARNING: Loop',statement.coord,'has run', loopcount, 'times.')
+                    break
 
 
-            print("'While' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
-            if (loopcount%2000)!=0:
-                print(' normally')
+            log.loop_print("'While' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
+            if (loopcount%log.loop_break)!=0:
+                log.loop_print(' normally')
             else:
-                print(', condition doesnt seem to hold')
+                log.loop_print(', condition doesnt seem to hold')
 
-            print()
+            log.loop_print()
 
-            runningloop = []
             if isinstance(loopval, tuple):
                 return loopval
 
         if isinstance(statement, c_ast.For):
-            runningloop = [statement.coord]
             looptbl = Table(symb_table)
             loopcount = 0
             for decl in statement.init:
@@ -369,27 +367,23 @@ def eval_stat(node, symb_table, loop = None):
                     break
                 if loopval == 'continue':
                     continue
-                if (loopcount % 2000) == 0:       #rework
-                    print('\nWARNING: Loop',statement.coord,'has run', loopcount, 'times.')
-                    conf = input('Do you want to exit(y to exit)')
-                    if conf == 'y':
-                        break
+                if (loopcount%log.loop_break) == 0:       #rework
+                    log.loop_print('WARNING: Loop',statement.coord,'has run', loopcount, 'times.')
+                    break
                 eval_stat(next, looptbl)
 
-            print("'For' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
-            if (loopcount%2000)!=0:
-                print(' normally')
+            log.loop_print("'For' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
+            if (loopcount%log.loop_break)!=0:
+                log.loop_print(' normally')
             else:
-                print(', condition doesnt seem to hold')
+                log.loop_print(', condition doesnt seem to hold')
 
-            print()
-            runningloop = []
+            log.loop_print()
             if isinstance(loopval, tuple):
                 return loopval
 
 
         if isinstance(statement, c_ast.DoWhile):
-            runningloop = [statement.coord]
             looptbl = Table(symb_table)
             loopcount = 1
             loopval = eval_stat(statement.stmt, looptbl)
@@ -401,20 +395,17 @@ def eval_stat(node, symb_table, loop = None):
                         break
                     if loopval == 'continue':
                         continue
-                    if (loopcount % 2000) == 0:       #rework
-                        print('\nWARNING: Loop',statement.coord,'has run', loopcount, 'times.')
-                        conf = input('Do you want to exit(y to exit)')
-                        if conf == 'y':
-                            break
+                    if (loopcount%log.loop_break) == 0:       #rework
+                        log.loop_print('WARNING: Loop',statement.coord,'has run', loopcount, 'times.')
+                        break
 
-            print("'Do-While' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
-            if loopcount%2000!=0:
-                print(' normally')
+            log.loop_print("'Do-While' loop at", statement.coord, "ran", loopcount, "times before exiting", end = '')
+            if loopcount%log.loop_break!=0:
+                log.loop_print(' normally')
             else:
-                print(', condition doesnt seem to hold')
+                log.loop_print(', condition doesnt seem to hold')
 
-            print()
-            runningloop = []
+            log.loop_print()
             if isinstance(loopval, tuple):
                 return loopval
 
