@@ -265,7 +265,7 @@ def eval_fncall(node, symb_table_og):
     symb_table = Table(symb_table_og)
     func_det = symb_table.get_func(node.name)
     if func_det is None:
-        #print(node.name.name, 'not defined')
+        print(node.name.name, 'not defined')
         return
     log.verbose_print('Function', node.name.name, end = '')
     if node.args is not None:
