@@ -33,14 +33,14 @@ def get_max(lst):
     for item in lst:
         if max is None or z3max(max,item)[1]:
             max = item
-    return item
+    return max
 
 def get_min(lst):
     min = None
     for item in lst:
-        if min is None or not z3max(min,item)[1]:
+        if min is None or z3max(item,min)[1]:
             min = item
-    return item
+    return min
 
 class BoundedFloat():
     def __init__(self,val = None,fval = None,ulmt = None, llmt = None):  #Redefine ctr
@@ -86,6 +86,8 @@ class BoundedFloat():
                 self.bounds[1] = ulmt
             else:
                 self.bounds[1] = RealVal(ulmt)
+
+        #print('Debug:',self,'\n')
 
 
     def __str__(self):
@@ -229,10 +231,32 @@ class BoundedFloat():
     def __float__(self):
         return self
 
+#-------------------debug-------------------------------
+
+def pow(base, exp):
+    res = 1
+    #print('\nBase:',base,'\n','Exp:',exp,'\n')
+    for i in range(exp):
+        #print(i, res)
+        res *= base
+    return res
+
+def fact(num):
+    res = 1
+    for i in range(1, num+1):
+        res*=i
+    return res
+
+def sine(x):
+    res = 0
+    for i in range(3):
+        #print(i, 'res',res)
+        #print('pow',pow(x,2*i+1),'\n')
+        res += pow(-1,i)*pow(x,2*i+1)/fact(2*i+1)
+    return res
 
 if __name__ == "__main__":
-    s1= BoundedFloat(22.3)
-    s2 = BoundedFloat(7.2)
-    print(s1, '\n')
-    print(s2, '\n')
-    print(s1+s2*3.4)
+    log.verbose=True
+    set_option(precision=200,rational_to_decimal=True)
+    s1= BoundedFloat(3.1415926535/3)
+    print(sine(s1))
