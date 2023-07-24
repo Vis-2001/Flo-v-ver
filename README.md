@@ -1,4 +1,4 @@
-# [Flo-v-ver](https://github.com/Gagan163264/Flo-v-ver.git)
+# [Flo-v-ver](https://github.com/Vis-2001/Flo-v-ver.git)
 
 C code profiler to report instances of errors in floating point computation
 ## Setup
