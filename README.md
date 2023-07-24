@@ -4,7 +4,7 @@ C code profiler to report instances of errors in floating point computation
 ## Setup
 Download all files using 
 
-`git clone https://github.com/Gagan163264/Flo-v-ver.git`
+`git clone https://github.com/Vis-2001/Flo-v-ver.git`
 
 Python 3 is required, gcc might be required for its preprocessor
 
